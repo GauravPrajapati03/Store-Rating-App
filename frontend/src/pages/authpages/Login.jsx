@@ -1,14 +1,41 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { AuthDataContext } from "../../context/AuthContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const { login } = useContext(AuthDataContext);
 
-  const HandleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const HandleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
 
-    setFormData({ email: "", password: "" });
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/auth/login`,
+        formData
+      );
+
+      if (res.status === 200) {
+        // localStorage.setItem("token", res.data.token);
+        const userData = {
+          ...res.data.user,
+          token: res.data.token,
+        };
+        login(userData);
+
+        toast.success("Login Successful");
+        navigate("/dashboard/user");
+      }
+      setFormData({ email: "", password: "" });
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response.data.msg || "Login failed. Please try again.");
+    }
   };
 
   return (
@@ -58,6 +85,7 @@ const Login = () => {
                 }
                 placeholder="Your password"
                 className="w-[100%] px-4 py-[8px] rounded-md border-1 border-[#EAE3E7] placeholder:text-[0.9rem]"
+                required
               />
             </div>
             <a
