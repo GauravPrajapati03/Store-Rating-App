@@ -310,3 +310,156 @@ Fetches dashboard statistics: total users, stores, and ratings. Only accessible 
 - All endpoints require authentication as an Admin.
 - JWT token can be sent via `Authorization` header or as a cookie named `token`.
 - All requests and responses use JSON format.
+
+
+## Store Management API
+
+### Add Store
+
+**Endpoint:**  
+`POST /api/stores`
+
+**Description:**  
+Adds a new store. Only accessible by Admins.
+
+**Headers:**
+- `Authorization: Bearer <JWT_TOKEN>` (or cookie named `token`)
+
+**Request Body:**
+```json
+{
+  "name": "SuperMart",
+  "email": "store@example.com",
+  "address": "101 Commerce St",
+  "owner_id": 3
+}
+```
+
+**Response:**
+
+- **201 Created**
+    ```json
+    {
+      "msg": "Store added successfully",
+      "store": {
+        "id": 1,
+        "name": "SuperMart",
+        "email": "store@example.com",
+        "address": "101 Commerce St",
+        "owner_id": 3
+      }
+    }
+    ```
+- **400 Bad Request**
+    ```json
+    { "msg": "All fields are required" }
+    ```
+- **403 Forbidden**
+    ```json
+    { "msg": "Not Autorized, Admins Only" }
+    ```
+- **401 Unauthorized**
+    ```json
+    { "msg": "Not Authorized, No Token" }
+    ```
+- **500 Internal Server Error**
+    ```json
+    { "msg": "Error adding store", "error": "Error details" }
+    ```
+
+---
+
+### Get All Stores
+
+**Endpoint:**  
+`GET /api/stores`
+
+**Description:**  
+Fetches all stores. Requires authentication. Supports optional query parameters for filtering.
+
+**Headers:**
+- `Authorization: Bearer <JWT_TOKEN>` (or cookie named `token`)
+
+**Query Parameters (optional):**
+- `name`: Filter by store name (partial match)
+- `address`: Filter by address (partial match)
+
+**Example Request:**
+```
+GET /api/stores?name=SuperMart&address=Commerce
+```
+
+**Response:**
+
+- **200 OK**
+    ```json
+    {
+      "msg": "Fetched Stores successfully",
+      "stores": [
+        {
+          "id": 1,
+          "name": "SuperMart",
+          "email": "store@example.com",
+          "address": "101 Commerce St",
+          "avg_rating": 4.2
+        }
+      ]
+    }
+    ```
+- **401 Unauthorized**
+    ```json
+    { "msg": "Not Authorized, No Token" }
+    ```
+- **500 Internal Server Error**
+    ```json
+    { "msg": "Error Fetching Stores", "error": "Error details" }
+    ```
+
+---
+
+### Get Store Details
+
+**Endpoint:**  
+`GET /api/stores/:id`
+
+**Description:**  
+Fetches details of a specific store by ID. Requires authentication.
+
+**Headers:**
+- `Authorization: Bearer <JWT_TOKEN>` (or cookie named `token`)
+
+**Response:**
+
+- **200 OK**
+    ```json
+    {
+      "store": {
+        "id": 1,
+        "name": "SuperMart",
+        "email": "store@example.com",
+        "address": "101 Commerce St",
+        "owner_id": 3,
+        "avg_rating": 4.2
+      }
+    }
+    ```
+- **404 Not Found**
+    ```json
+    { "msg": "Store not found" }
+    ```
+- **401 Unauthorized**
+    ```json
+    { "msg": "Not Authorized, No Token" }
+    ```
+- **500 Internal Server Error**
+    ```json
+    { "msg": "Error fetching store details", "error": "Error details" }
+    ```
+
+---
+
+**Notes:**
+- All endpoints require authentication.
+- Only Admins can add stores.
+- JWT token can be sent via `Authorization` header or as a cookie named `token`.
+- All requests and responses use JSON format.

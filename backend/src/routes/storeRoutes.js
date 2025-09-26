@@ -1,17 +1,11 @@
 import express from 'express';
+import { isAdmin, verifyToken } from '../middleware/auth.js'
+import { addStore, getStoreDetails, getStores } from '../controllers/storeController.js';
 
 const router = express.Router();
 
-// admin
-router.post('/', protect, isAdmin, createsStoreByAdmin);
-router.get('/dashboard-stats', protect, isAdmin, getDashboardStats);
-
-// store
-router.get('/my-store', protect, getStoreOwnerDashboard);
-
-router.get('/', protect, getAllStores);
-
-
-router.post('/store-Id/ratings', protect, submitOrUpdateRating);
+router.post('/', verifyToken, isAdmin, addStore);
+router.get('/', verifyToken, getStores);
+router.get('/:id', verifyToken, getStoreDetails);
 
 export default router;
