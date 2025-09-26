@@ -19,7 +19,7 @@ export const registerUser = async (req, res) => {
         }
 
         const hashedPassword = await hashPassword(password);
-        const [result] = await db.query('INSERT INTO users (name, email, address, password, role) VALUES (?, ?, ?, ?, ?)', [name, email, address, hashedPassword, 'user']);
+        const [result] = await db.query('INSERT INTO users (name, email, address, password, role) VALUES (?, ?, ?, ?, ?)', [name, email, address, hashedPassword, 'USER']);
         // console.log(result);
 
         // const token = await generateToken(result.insertId, email);
@@ -28,7 +28,7 @@ export const registerUser = async (req, res) => {
         res.status(201).json({ msg: 'User created successfully', user: { id: result.insertId, name, email, address } });
     } catch (err) {
         console.log(err)
-        res.status(500).json({ msg: 'Internal Server Error', error: err })
+        res.status(500).json({ msg: 'User Registration Error', error: err })
     }
 }
 
@@ -54,14 +54,14 @@ export const loginUser = async (req, res) => {
             return res.status(400).json({ msg: 'Invalid Email or Password' })
         }
 
-        const token = generateToken(user.id, user.email, user.role);
+        const token = generateToken(user.id, user.role);
         res.cookie('token', token);
 
         res.status(200).json({ msg: 'Login successful', token, user: { id: user.id, name: user.name, email: user.email, role: user.role, address: user.address } });
 
     } catch (err) {
         console.log(err)
-        res.status(500).json({ msg: 'Internal Server Error', error: err })
+        res.status(500).json({ msg: 'Login Error', error: err })
     }
 }
 
