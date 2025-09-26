@@ -1,6 +1,6 @@
 import express from 'express';
 import { isOwner, verifyToken } from '../middleware/auth.js';
-import { addOrUpdateRating, getRatingsForStoreOwner, getUserRatingForStore } from '../controllers/ratingController';
+import { addOrUpdateRating, getRatingsForStoreOwner, getUserRatingForStore } from '../controllers/ratingController.js';
 const router = express.Router();
 
 

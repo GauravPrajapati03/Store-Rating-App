@@ -20,13 +20,40 @@ export const addOrUpdateRating = async (req, res) => {
             // Update existing rating
             await db.query("UPDATE ratings SET rating = ? WHERE user_id = ? AND store_id = ?", [rating, user_id, store_id]);
 
-            res.status(200).json({ msg: "Rating updated Successfully" });
+            const [updatedRows] = await db.query("SELECT * FROM ratings WHERE user_id = ? AND store_id = ?", [user_id, store_id]);
+
+            const updatedRating = updatedRows[0];
+
+            res.status(200).json({
+                msg: "Rating updated Successfully",
+                id: updatedRating.id,
+                user_id: updatedRating.user_id,
+                store_id: updatedRating.store_id,
+                rating: updatedRating.rating,
+                created_at: updatedRating.created_at,
+                updated_at: updatedRating.updated_at
+            });
         }
         else {
             // Add new rating
-            await db.query("INSERT INTO ratings (user_id, store_id, rating) VALUES (?,?,?,?) ", [user_id, store_id, rating]);
+            const [insertResult] = await db.query("INSERT INTO ratings (user_id, store_id, rating) VALUES (?,?,?) ", [user_id, store_id, rating]);
 
-            res.status(201).json({ msg: "Rating added Successfully" });
+            const [newRows] = await db.query(
+                "SELECT * FROM ratings WHERE id = ?",
+                [insertResult.insertId]
+            );
+
+            const newRating = newRows[0];
+
+            res.status(201).json({
+                msg: "Rating added Successfully",
+                id: newRating.id,
+                user_id: newRating.user_id,
+                store_id: newRating.store_id,
+                rating: newRating.rating,
+                created_at: newRating.created_at,
+                updated_at: newRating.updated_at
+            });
         }
     } catch (err) {
         res.status(500).json({ msg: "Error submitting rating", error: err.message });
@@ -43,10 +70,10 @@ export const getUserRatingForStore = async (req, res) => {
         const [ratings] = await db.query("SELECT rating FROM ratings WHERE user_id = ? AND store_id = ?", [user_id, storeId]);
 
         if (ratings.length === 0) {
-            res.status(200).json({ msg: "No rating found", rating: null });
+            return res.status(200).json({ msg: "No rating found", rating: null });
         }
 
-        res.status(200).json({ msg: "Fetched rating successfully", rating: ratings[0].rating })
+        res.status(200).json({ msg: "Fetched rating successfully", rating: ratings[0].rating, storeId: storeId });
 
     } catch (err) {
         res.status(500).json({ msg: "Error fetching rating", error: err.messsage });
@@ -60,6 +87,7 @@ export const getRatingsForStoreOwner = async (req, res) => {
 
     try {
         const [storeRows] = await db.query("SELECT * FROM stores WHERE owner_id = ?", [owner_id]);
+
         if (storeRows.length === 0) {
             return res.status(404).json({ msg: "Store not Found for this owner" });
         }
@@ -68,22 +96,30 @@ export const getRatingsForStoreOwner = async (req, res) => {
 
         const [ratings] = await db.query(
             `SELECT r.id, r.rating, u.name as user_name, u.email as user_email, r.created_at
-            FROM ratings r
-            JOIN users u ON r.user_id = u.id
-            WHERE r.store_id = ?
-            `, [store_id]
+                FROM ratings r
+                JOIN users u ON r.user_id = u.id
+                WHERE r.store_id = ?`,
+            [store_id]
         );
 
-        const [[avg]] = await db.query("SELECT AVG(rating) as avg_rating FROM ratings WHERE store_id = ?", [store_id]);
+        const [avgResult] = await db.query(
+            "SELECT COALESCE(AVG(rating), 0) as avg_rating FROM ratings WHERE store_id = ?",
+            [store_id]
+        );
+
+        const avg = parseFloat(avgResult[0].avg_rating) || 0;
 
         res.status(200).json({
             msg: "Fetched ratings and avg successfully",
             storeId: store_id,
-            averageRating: avg.avg_rating || 0,
+            averageRating: Math.round(avg * 10) / 10,
             ratings
-        })
+        });
 
     } catch (err) {
-        res.status(500).json({ msg: "Error fetching ratings for store owner", error: err.message })
+        res.status(500).json({
+            msg: "Error fetching ratings for store owner",
+            error: err.message
+        });
     }
-}
+};
