@@ -1,5 +1,5 @@
 import db from '../config/db.js';
-import { hashPassword } from '../utils/hashPassword.js';
+import { hashPassword, comparePassword } from '../utils/hashPassword.js';
 
 
 export const addUser = async (req, res) => {
@@ -90,5 +90,39 @@ export const getDashboardStats = async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ message: 'Error fetching dashboard stats', error: err.message });
+    }
+}
+
+export const updateUserPassword = async (req, res) => {
+    const userId = req.params.id;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ message: 'Old password and new password are required' });
+    }
+
+    if (oldPassword === newPassword) {
+        return res.status(400).json({ message: 'New password must be different from old password' });
+    }
+
+    try {
+        const [rows] = await db.query("SELECT password FROM users WHERE id = ?", [userId]);
+
+        if (!rows.length) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const valid = await comparePassword(oldPassword, rows[0].password);
+        if (!valid) {
+            return res.status(401).json({ message: 'Old password is incorrect' });
+        }
+
+        const hashedPassword = await hashPassword(newPassword);
+        await db.query("UPDATE users SET password = ? WHERE id = ?", [hashedPassword, userId]);
+
+        res.status(200).json({ message: 'Password updated successfully' });
+
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating password', error: err.message });
     }
 }
