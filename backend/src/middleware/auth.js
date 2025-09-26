@@ -34,4 +34,5 @@ export const isOwner = (req, res, next) => {
     if (req.user.role !== "OWNER") {
         return res.status(403).json({ msg: "Not Autorized, Store Owners Only" });
     }
+    next();
 }
