@@ -21,7 +21,7 @@ const Register = () => {
 
   const HandleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    // console.log(formData);
 
     try {
       const res = await axios.post(
@@ -32,7 +32,7 @@ const Register = () => {
       if (res.status === 201) {
         localStorage.setItem("token", res.data.token);
         toast.success("Registered successfully");
-        navigate("/auth/login");
+        navigate("/login");
       }
       setformData({ name: "", email: "", address: "", password: "" });
     } catch (err) {
@@ -92,7 +92,7 @@ const Register = () => {
 
             <div className="my-2">
               <label
-                htmlFor="password"
+                htmlFor="address"
                 className="text-[#828282] cursor-pointer inline-block mb-1"
               >
                 Address
@@ -110,7 +110,7 @@ const Register = () => {
               />
             </div>
 
-            <div className="my-2 mt-[-10px]">
+            <div className="mb-2 mt-[-10px]">
               <label
                 htmlFor="password"
                 className="text-[#828282] cursor-pointer inline-block mb-1"
@@ -137,7 +137,7 @@ const Register = () => {
             <p>
               Already have an account?{" "}
               <Link
-                to="/auth/login"
+                to="/login"
                 className="text-[#7F265B] text-sm cursor-pointer"
               >
                 Login Now

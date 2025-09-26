@@ -29,7 +29,7 @@ const Login = () => {
         login(userData);
 
         toast.success("Login Successful");
-        navigate("/dashboard/user");
+        navigate("/user");
       }
       setFormData({ email: "", password: "" });
     } catch (err) {
@@ -102,7 +102,7 @@ const Login = () => {
             <p>
               Don't have an account?{" "}
               <Link
-                to="/auth/register"
+                to="/register"
                 className="text-[#7F265B] text-sm cursor-pointer"
               >
                 Register Now

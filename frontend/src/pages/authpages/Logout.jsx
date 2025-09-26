@@ -17,7 +17,7 @@ const Logout = () => {
       if (res.status === 200) {
         localStorage.removeItem("token");
         toast.success("Logout successful");
-        navigate("/auth/login");
+        navigate("/login");
       }
     })
     .catch((err) => {
