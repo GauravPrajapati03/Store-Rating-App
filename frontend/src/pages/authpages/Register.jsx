@@ -11,6 +11,7 @@ const Register = () => {
     address: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -22,6 +23,49 @@ const Register = () => {
   const HandleSubmit = async (e) => {
     e.preventDefault();
     // console.log(formData);
+    setLoading(true);
+
+    // Validate name
+    if (formData.name.length < 20 || formData.name.length > 60) {
+      toast.error("Name must be between 20 and 60 characters");
+      setLoading(false);
+      return;
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
+
+    // Validate address
+    if (formData.address.length > 400) {
+      toast.error("Address cannot exceed 400 characters");
+      setLoading(false);
+      return;
+    }
+
+    // Validate password
+    const password = formData.password;
+    if (password.length < 8 || password.length > 16) {
+      toast.error("Password must be 8 to 16 characters long");
+      setLoading(false);
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      toast.error("Password must contain at least one uppercase letter");
+      setLoading(false);
+      return;
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      toast.error(
+        "Password must contain at least one special character (!@#$%^&*)"
+      );
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await axios.post(
@@ -30,7 +74,7 @@ const Register = () => {
       );
 
       if (res.status === 201) {
-        localStorage.setItem("token", res.data.token);
+        // localStorage.setItem("token", res.data.token);
         toast.success("Registered successfully");
         navigate("/login");
       }
@@ -38,8 +82,12 @@ const Register = () => {
     } catch (err) {
       console.error(err);
       toast.error(
-        err.response.data.msg || "Registration failed. Please try again."
+        err.response?.data?.msg ||
+          err.response?.data?.message ||
+          "Registration failed. Please try again."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -129,8 +177,12 @@ const Register = () => {
                 required
               />
             </div>
-            <button className="bg-[#a0497e] w-[100%] py-[8px] font-extralight rounded-md mt-1 text-[#fff] text-[16px] cursor-pointer">
-              Register
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-[#a0497e] w-[100%] py-[8px] font-extralight rounded-md mt-1 text-[#fff] text-[16px] cursor-pointer"
+            >
+              {loading ? "Registering..." : "Register"}
             </button>
           </form>
           <div className="mt-1 text-center">

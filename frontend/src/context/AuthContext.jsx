@@ -4,7 +4,9 @@ export const AuthDataContext = createContext();
 
 const AuthContext = ({ children }) => {
   const [user, setUser] = useState(null);
-  const token = useState(localStorage.getItem("token") || null);
+  const [token, setToken] = useState(
+    () => localStorage.getItem("token") || null
+  );
 
   useEffect(() => {
     if (token) {
@@ -17,21 +19,23 @@ const AuthContext = ({ children }) => {
       localStorage.removeItem("token");
       setUser(null);
     }
-  }, []);
+  }, [token]);
 
   const login = (userData) => {
     setUser(userData);
+    setToken(userData.token);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", userData.token);
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
   };
 
-  const value = { user, login, logout };
+  const value = { user, token, login, logout };
 
   return (
     <AuthDataContext.Provider value={value}>

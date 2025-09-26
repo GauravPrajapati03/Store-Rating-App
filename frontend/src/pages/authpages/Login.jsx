@@ -7,12 +7,14 @@ import { AuthDataContext } from "../../context/AuthContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthDataContext);
 
   const navigate = useNavigate();
 
   const HandleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const res = await axios.post(
@@ -29,12 +31,30 @@ const Login = () => {
         login(userData);
 
         toast.success("Login Successful");
-        navigate("/user");
+
+        switch (res.data.user.role) {
+          case "ADMIN":
+            navigate("/admin");
+            break;
+
+          case "OWNER":
+            navigate("/store-owner");
+            break;
+
+          default:
+            navigate("/user");
+        }
       }
       setFormData({ email: "", password: "" });
     } catch (err) {
       console.error(err);
-      toast.error(err.response.data.msg || "Login failed. Please try again.");
+      toast.error(
+        err.response?.data?.msg ||
+          err.response?.data?.message ||
+          "Login failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,8 +114,12 @@ const Login = () => {
             >
               Forgot Password?
             </a>
-            <button className="bg-[#a0497e] w-[100%] py-[8px] font-extralight rounded-md text-[#fff] text-[16px] mt-8 cursor-pointer">
-              Login
+            <button
+              type="submit"
+              className="bg-[#a0497e] w-[100%] py-[8px] font-extralight rounded-md text-[#fff] text-[16px] mt-8 cursor-pointer"
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
           <div className="mt-3 text-center">
