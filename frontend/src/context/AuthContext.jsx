@@ -1,47 +1,44 @@
-import { createContext, useState, useEffect } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
-export const AuthDataContext = createContext();
+export const AuthContext = createContext();
 
-const AuthContext = ({ children }) => {
+
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(
-    () => localStorage.getItem("token") || null
-  );
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (token) {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (storedUser) {
-        setUser(storedUser);
-      }
-    } else {
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-      setUser(null);
-    }
-  }, [token]);
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
 
-  const login = (userData) => {
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (token && user) {
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+    } else [localStorage.removeItem("user"), localStorage.removeItem("token")];
+  }, [token, user]);
+
+  const login = (userData, token) => {
     setUser(userData);
-    setToken(userData.token);
-    localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", userData.token);
+    setToken(token);
   };
 
   const logout = () => {
-    setUser(null);
     setToken(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    setUser(null);
   };
 
-  const value = { user, token, login, logout };
+  const value = { user, token, login, logout, loading };
 
-  return (
-    <AuthDataContext.Provider value={value}>
-      {children}
-    </AuthDataContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{! loading &&children}</AuthContext.Provider>;
 };
 
 export default AuthContext;

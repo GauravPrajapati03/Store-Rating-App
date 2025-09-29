@@ -26,11 +26,11 @@ const Register = () => {
     setLoading(true);
 
     // Validate name
-    if (formData.name.length < 20 || formData.name.length > 60) {
-      toast.error("Name must be between 20 and 60 characters");
-      setLoading(false);
-      return;
-    }
+    // if (formData.name.length < 20 || formData.name.length > 60) {
+    //   toast.error("Name must be between 20 and 60 characters");
+    //   setLoading(false);
+    //   return;
+    // }
 
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -75,7 +75,7 @@ const Register = () => {
 
       if (res.status === 201) {
         // localStorage.setItem("token", res.data.token);
-        toast.success("Registered successfully");
+        toast.success("Registered successfully! Please login.");
         navigate("/login");
       }
       setformData({ name: "", email: "", address: "", password: "" });

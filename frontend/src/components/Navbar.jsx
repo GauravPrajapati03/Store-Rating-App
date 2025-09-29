@@ -1,12 +1,12 @@
 import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthDataContext } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import { FaUserCircle, FaChevronDown, FaSignOutAlt } from "react-icons/fa";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
 
-  const { user, logout } = useContext(AuthDataContext);
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const HandleLogout = () => {
@@ -36,18 +36,18 @@ const Navbar = () => {
                 : "scale-95 opacity-0 pointer-events-none"
             }`}
           >
-            <a
-              href="/profile"
+            <Link
+              to="/profile"
               className="flex px-5 py-3 items-center gap-2 text-gray-700 hover:bg-violet-50 transition-colors text-sm"
             >
               Profile
-            </a>
-            <a
-              href="/settings"
+            </Link>
+            <Link
+              to="/settings"
               className="flex px-5 py-3 items-center gap-2 text-gray-700 hover:bg-violet-50 transition-colors text-sm"
             >
               Settings
-            </a>
+            </Link>
             <button
               className="w-full flex px-5 py-3 items-center gap-2 text-red-600 bg-red-50 hover:bg-red-100 transition-colors text-sm"
               onClick={HandleLogout}

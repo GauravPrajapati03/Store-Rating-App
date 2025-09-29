@@ -1,14 +1,14 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { AuthDataContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
+import api from "../../api/axios";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const { login } = useContext(AuthDataContext);
+  const { login } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -17,18 +17,14 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/auth/login`,
-        formData
-      );
+      const res = await api.post(`/auth/login`, formData);
 
       if (res.status === 200) {
-        // localStorage.setItem("token", res.data.token);
-        const userData = {
-          ...res.data.user,
-          token: res.data.token,
-        };
-        login(userData);
+        const userData = res.data.user;
+        const token = res.data.token;
+
+        // console.log(res.data.user.role);
+        login(userData, token);
 
         toast.success("Login Successful");
 

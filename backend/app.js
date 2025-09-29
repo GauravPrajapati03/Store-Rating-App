@@ -12,10 +12,15 @@ import ratingRoutes from "./src/routes/ratingRoutes.js";
 
 const app = express();
 
+const CorsOptions = {
+    origin: 'http://localhost:5173',
+    credentials: true
+}
+
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors(CorsOptions));
 app.use(cookieParser());
 
 

@@ -1,7 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const Profile = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
+  // const user = JSON.parse(localStorage.getItem("user"));
+  // console.log(user);
+
+  const {user} = useContext(AuthContext);
+  console.log(user);
+
+  if(!user) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-white">
+        <p className="text-gray-700">No user data found. Please login.</p>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -27,16 +40,12 @@ const Profile = () => {
               <div className="text-gray-900">{user.email}</div>
             </div>
             <div className="flex px-8 py-4 items-center">
-              <div className="w-32 text-gray-700 font-semibold">
-                Role
-              </div>
+              <div className="w-32 text-gray-700 font-semibold">Role</div>
               <div className="text-gray-900">{user.role}</div>
             </div>
             <div className="flex px-8 py-4 items-center">
               <div className="w-32 text-gray-700 font-semibold">Address</div>
-              <div className="text-gray-900">
-                {user.address}
-              </div>
+              <div className="text-gray-900">{user.address}</div>
             </div>
           </div>
         </div>
